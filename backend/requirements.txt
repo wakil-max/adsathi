@@ -1,0 +1,7 @@
+# AdSathi runs in DEMO mode (DRY_RUN=true) on the Python STANDARD LIBRARY ALONE.
+# Install these ONLY to enable live mode:
+httpx==0.27.2            # Meta API + SSLCommerz HTTP calls
+anthropic==0.39.0        # real bilingual captions
+openai==1.51.0           # real image generation
+pillow==10.4.0           # composite Bangla headline onto images
+psycopg[binary]==3.2.3   # only if using Postgres (DATABASE_URL)
