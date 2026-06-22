@@ -3,267 +3,392 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>AdSathi — AI Ad Assistant for Bangladesh</title>
+<title>AdSathi — AI ad studio for Bangladesh</title>
 <style>
-  :root{--bg:#0b1220;--panel:#121a2b;--bubble:#1b2740;--me:#2563eb;--txt:#e6edf6;--mut:#8aa0c0;--ok:#10b981;--warn:#f59e0b;--bd:#243553}
-  *{box-sizing:border-box} html,body{height:100%}
-  body{margin:0;font-family:'Segoe UI',system-ui,'Noto Sans Bengali',sans-serif;background:var(--bg);color:var(--txt)}
+  :root{
+    --bg:#0a0f1a; --surface:#111a2b; --surface2:#162236; --line:#26334d;
+    --txt:#e8eefc; --mut:#94a6c4; --brand:#6d5efc; --brand2:#22d3ee;
+    --ok:#10b981; --warn:#f59e0b; --danger:#f87171; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:'Segoe UI',system-ui,'Noto Sans Bengali',sans-serif;background:
+    radial-gradient(1200px 600px at 80% -10%, #1a1340 0%, transparent 55%), var(--bg);
+    color:var(--txt)}
   button{cursor:pointer;font-family:inherit}
+  input,textarea,select{font-family:inherit}
   .hidden{display:none!important}
-  /* auth */
-  .authwrap{min-height:100vh;display:grid;place-items:center;padding:20px}
-  .card{background:var(--panel);border:1px solid var(--bd);border-radius:18px;padding:28px;width:380px;max-width:100%}
-  .card h1{margin:0 0 4px;font-size:22px} .card p.sub{margin:0 0 18px;color:var(--mut);font-size:14px}
-  .card input{width:100%;background:#0e1626;border:1px solid var(--bd);color:var(--txt);padding:12px;border-radius:10px;margin-bottom:10px;font-size:15px}
-  .card button.primary{width:100%;background:var(--me);color:#fff;border:0;padding:12px;border-radius:10px;font-weight:600;font-size:15px}
-  .card .toggle{text-align:center;margin-top:14px;color:var(--mut);font-size:14px}
-  .card .toggle a{color:#60a5fa;cursor:pointer}
-  .err{color:#fca5a5;font-size:13px;margin-bottom:8px;min-height:16px}
-  /* app */
-  .app{height:100vh;display:flex;flex-direction:column}
-  .topbar{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--bd)}
-  .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#0ea5e9);display:grid;place-items:center;font-weight:700}
-  .topbar .grow{flex:1}
-  .badge{background:#0e1626;border:1px solid var(--bd);border-radius:999px;padding:6px 12px;font-size:13px}
-  .badge b{color:var(--ok)}
-  .tbtn{background:#1b2740;border:1px solid var(--bd);color:var(--txt);padding:7px 12px;border-radius:9px;font-size:13px}
-  .tbtn.warn{border-color:var(--warn);color:var(--warn)}
-  .body{flex:1;display:flex;min-height:0}
-  .chatcol{flex:1;display:flex;flex-direction:column;min-width:0}
-  .notice{background:#1f2937;border-bottom:1px solid var(--warn);padding:8px 18px;font-size:13px;color:var(--warn)}
-  .thread{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
-  .msg{max-width:72%;padding:11px 14px;border-radius:14px;line-height:1.5;white-space:pre-wrap}
-  .msg.user{align-self:flex-end;background:var(--me)} .msg.bot{align-self:flex-start;background:var(--bubble)}
-  .composer{display:flex;gap:10px;padding:14px;border-top:1px solid var(--bd)}
-  .composer input{flex:1;background:#0e1626;border:1px solid var(--bd);color:var(--txt);padding:12px 14px;border-radius:12px;font-size:15px}
-  .composer button{background:var(--me);color:#fff;border:0;padding:0 20px;border-radius:12px;font-weight:600}
-  .side{width:390px;background:var(--panel);border-left:1px solid var(--bd);overflow-y:auto}
-  .side h3{margin:0;padding:14px 16px;border-bottom:1px solid var(--bd);font-size:12px;letter-spacing:.05em;color:var(--mut);text-transform:uppercase}
-  .pad{padding:16px}
-  .imgcard{border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin-bottom:12px}
-  .imgcard img{width:100%;display:block}
-  .cap{border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:14px}
-  .cap.sel{border-color:var(--me);background:#15213c}
-  .cap .tone{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
-  .cap .en{color:var(--mut);font-size:13px;margin-top:4px}
-  .plan{font-size:14px;line-height:1.7} .plan b{color:var(--mut)}
-  .pill{display:inline-block;background:#0e1626;border:1px solid var(--bd);border-radius:999px;padding:3px 9px;font-size:12px;color:var(--mut);margin:0 4px 6px 0}
-  .launch{width:100%;background:var(--ok);color:#03130c;border:0;padding:13px;border-radius:12px;font-weight:700;font-size:15px;margin-top:8px}
-  .launch:disabled{opacity:.45}
-  .result{background:#0e1626;border:1px solid var(--ok);border-radius:10px;padding:12px;font-size:13px;margin-top:10px;white-space:pre-wrap}
-  .empty{color:var(--mut);font-size:14px;text-align:center;margin-top:60px;line-height:1.7}
+  .brandmark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center;font-weight:800;color:#0a0f1a}
+  .muted{color:var(--mut)} .pill{display:inline-block;background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--mut);margin:0 6px 6px 0}
+
+  /* ---------- centered card (auth + onboarding) ---------- */
+  .center{min-height:100vh;display:grid;place-items:center;padding:24px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:30px;width:440px;max-width:100%}
+  .card h1{margin:0 0 4px;font-size:23px} .card .sub{margin:0 0 20px;color:var(--mut);font-size:14px}
+  label{display:block;font-size:13px;color:var(--mut);margin:14px 0 6px}
+  .inp{width:100%;background:#0c1322;border:1px solid var(--line);color:var(--txt);padding:12px 13px;border-radius:11px;font-size:15px}
+  textarea.inp{resize:vertical;min-height:70px}
+  .btn{background:var(--brand);color:#fff;border:0;padding:12px 18px;border-radius:11px;font-weight:600;font-size:15px}
+  .btn.block{width:100%} .btn.ghost{background:var(--surface2);border:1px solid var(--line);color:var(--txt)}
+  .btn:disabled{opacity:.5}
+  .err{color:var(--danger);font-size:13px;min-height:18px;margin-top:8px}
+  .toggle{text-align:center;margin-top:16px;color:var(--mut);font-size:14px}
+  .toggle a{color:#9db4ff;cursor:pointer}
+  .steps{display:flex;gap:6px;margin-bottom:18px}
+  .steps i{height:4px;flex:1;border-radius:4px;background:var(--line)}
+  .steps i.on{background:var(--brand)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  /* ---------- app shell ---------- */
+  .shell{min-height:100vh;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:rgba(10,15,26,.7);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5}
+  .topbar .biz{font-weight:700} .topbar .grow{flex:1}
+  .credits{background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px}
+  .credits b{color:var(--brand2)}
+  .tbtn{background:transparent;border:1px solid var(--line);color:var(--txt);padding:8px 13px;border-radius:10px;font-size:13px}
+  .layout{flex:1;display:flex;min-height:0}
+  .nav{width:210px;border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+  .nav button{display:flex;align-items:center;gap:10px;background:transparent;border:0;color:var(--mut);padding:11px 13px;border-radius:10px;font-size:14.5px;text-align:left;width:100%}
+  .nav button.on{background:var(--surface2);color:var(--txt);font-weight:600}
+  .nav .spacer{flex:1}
+  .main{flex:1;overflow-y:auto;padding:26px 30px}
+  .h2{font-size:20px;font-weight:700;margin:0 0 4px} .lead{color:var(--mut);font-size:14px;margin:0 0 22px}
+
+  /* segmented */
+  .seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:16px}
+  .seg button{background:transparent;border:0;color:var(--mut);padding:9px 18px;border-radius:9px;font-size:14px;font-weight:600}
+  .seg button.on{background:var(--brand);color:#fff}
+
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;max-width:760px}
+  .gen-row{display:flex;gap:10px;align-items:flex-end;margin-top:6px}
+  .gen-row .inp{flex:1}
+  .cost{font-size:12px;color:var(--mut);margin-top:8px}
+
+  /* script render */
+  .result{margin-top:22px;max-width:820px}
+  .scriptcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .scriptcard h3{margin:0 0 2px;font-size:18px}
+  .hook{background:linear-gradient(135deg,#1c1840,#10233a);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0}
+  .hook .k{font-size:11px;letter-spacing:.08em;color:var(--brand2);text-transform:uppercase}
+  .shot{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px;display:flex;gap:14px}
+  .shot .num{width:30px;height:30px;border-radius:8px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;flex:none}
+  .shot .scene{font-weight:600;margin-bottom:6px}
+  .shot .vo{font-size:14px;margin-top:4px} .shot .vo .en{color:var(--mut)}
+  .shot .ost{display:inline-block;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:2px 8px;font-size:12px;color:var(--brand2);margin-top:6px}
+  .shot .sec{color:var(--mut);font-size:12px;float:right}
+  .imgwrap{border:1px solid var(--line);border-radius:12px;overflow:hidden;max-width:420px;margin-top:16px}
+  .imgwrap img{width:100%;display:block}
+
+  /* library */
+  .libitem{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px}
+  .libitem .ic{width:34px;height:34px;border-radius:9px;background:var(--surface2);display:grid;place-items:center;font-size:16px;flex:none}
+  .libitem .t{font-weight:600} .libitem .d{font-size:12px;color:var(--mut)}
+
+  /* coming soon (ads) */
+  .soon{background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:26px;max-width:760px}
+  .soon .tag{display:inline-block;background:#2a1d4d;color:#c4b5ff;border-radius:999px;padding:4px 11px;font-size:12px;font-weight:600;margin-bottom:12px}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .flow span{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px}
+
+  .loading{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
   /* modal */
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:grid;place-items:center;z-index:50}
-  .modal .card{width:520px}
-  .hist{max-height:60vh;overflow:auto}
-  .hrow{border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px}
-  .hrow .st{color:var(--ok)} .hrow .dr{color:var(--warn)}
-  .topup-opt{display:flex;gap:8px;margin:10px 0}
-  .topup-opt button{flex:1;background:#0e1626;border:1px solid var(--bd);color:var(--txt);padding:10px;border-radius:10px}
-  .topup-opt button.sel{border-color:var(--me);background:#15213c}
+  .modal{position:fixed;inset:0;background:rgba(4,7,14,.7);display:grid;place-items:center;z-index:30;padding:20px}
+  .modal .card{width:480px}
+  .topup-opt{display:flex;gap:8px;margin:14px 0}
+  .topup-opt button{flex:1;background:#0c1322;border:1px solid var(--line);color:var(--txt);padding:12px;border-radius:11px}
+  .topup-opt button.on{border-color:var(--brand);background:#15183a}
+  .banner{padding:9px 20px;font-size:13px;text-align:center}
+  .banner.ok{background:#0c2a20;color:#6ee7b7;border-bottom:1px solid #14543c}
 </style>
 </head>
 <body>
 
-<!-- AUTH -->
-<div class="authwrap" id="auth">
+<!-- ============ AUTH ============ -->
+<div class="center" id="view-auth">
   <div class="card">
-    <div class="logo" style="margin-bottom:12px">A</div>
-    <h1 id="authTitle">Welcome to AdSathi</h1>
-    <p class="sub">বাংলাদেশের জন্য AI বিজ্ঞাপন সহকারী · AI ad assistant for Bangladesh</p>
+    <div class="brandmark" style="margin-bottom:14px">A</div>
+    <h1 id="authTitle">Create your account</h1>
+    <p class="sub">AI ad studio for Bangladeshi businesses · বাংলা + English</p>
+    <div class="signup-only"><label>Your name / নাম</label><input id="auName" class="inp" placeholder="e.g. Karim"/></div>
+    <label>Email</label><input id="auEmail" class="inp" type="email" placeholder="you@business.com"/>
+    <label>Password</label><input id="auPass" class="inp" type="password" placeholder="6+ characters"/>
     <div class="err" id="authErr"></div>
-    <input id="auName" placeholder="Your name / আপনার নাম" class="signup-only"/>
-    <input id="auEmail" placeholder="Email" type="email"/>
-    <input id="auPass" placeholder="Password" type="password"/>
-    <button class="primary" id="authBtn">Create account</button>
+    <button class="btn block" id="authBtn" style="margin-top:6px">Create account</button>
     <div class="toggle" id="authToggle"></div>
   </div>
 </div>
 
-<!-- APP -->
-<div class="app hidden" id="app">
-  <div class="topbar">
-    <div class="logo">A</div>
-    <div><div style="font-weight:700">AdSathi</div></div>
-    <div class="grow"></div>
-    <div class="badge">Credits: <b id="credits">0</b></div>
-    <button class="tbtn" id="topupBtn">+ Top up</button>
-    <button class="tbtn" id="connBtn">Connect Facebook</button>
-    <button class="tbtn" id="histBtn">History</button>
-    <button class="tbtn" id="logoutBtn">Logout</button>
-  </div>
-  <div class="notice hidden" id="notice"></div>
-  <div class="body">
-    <div class="chatcol">
-      <div class="thread" id="thread"></div>
-      <div class="composer">
-        <input id="inp" placeholder="যেমন: আমি শীতের জ্যাকেট বিক্রি করি, ঢাকায় ৫০০ টাকা বাজেটে... / e.g. I sell jackets in Dhaka, 500tk/day"/>
-        <button id="send">পাঠান</button>
+<!-- ============ ONBOARDING ============ -->
+<div class="center hidden" id="view-onboard">
+  <div class="card">
+    <div class="steps"><i class="on" id="st1"></i><i id="st2"></i></div>
+    <h1 id="obTitle">Tell us about your business</h1>
+    <p class="sub">This is how AdSathi writes scripts & images that fit you. একবারই দিতে হবে।</p>
+
+    <div id="obStep1">
+      <label>Business name *</label><input id="obName" class="inp" placeholder="e.g. Karim Fashion"/>
+      <label>What do you sell? *</label><textarea id="obProducts" class="inp" placeholder="e.g. winter jackets, hoodies — cash on delivery"></textarea>
+      <div class="grid2">
+        <div><label>Industry</label><input id="obIndustry" class="inp" placeholder="Fashion / Food / Electronics"/></div>
+        <div><label>City</label><input id="obCity" class="inp" placeholder="Dhaka"/></div>
       </div>
+      <button class="btn block" id="obNext" style="margin-top:18px">Next</button>
     </div>
-    <div class="side">
-      <h3>Creative & Campaign</h3>
-      <div class="pad" id="panel">
-        <div class="empty">এখানে তৈরি করা ছবি, ক্যাপশন ও ক্যাম্পেইন প্ল্যান দেখাবে।<br/>Your generated images, captions & campaign plan appear here.</div>
+
+    <div id="obStep2" class="hidden">
+      <label>Who are your customers?</label><input id="obAudience" class="inp" placeholder="e.g. men & women, 18–35, Dhaka"/>
+      <div class="grid2">
+        <div><label>Brand tone</label>
+          <select id="obTone" class="inp"><option value="friendly">Friendly</option><option value="premium">Premium</option><option value="urgency">Urgent / offer-driven</option><option value="fun">Fun & playful</option></select></div>
+        <div><label>Caption language</label>
+          <select id="obLang" class="inp"><option value="bilingual">Bangla + English</option><option value="bn">Bangla</option><option value="en">English</option></select></div>
+      </div>
+      <label>Anything else? (optional)</label><textarea id="obNotes" class="inp" placeholder="offers, delivery, what makes you different…"></textarea>
+      <div class="err" id="obErr"></div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn ghost" id="obBack">Back</button>
+        <button class="btn block" id="obSave">Save & start →</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- modals -->
-<div class="modal hidden" id="histModal"><div class="card">
-  <h1 style="font-size:18px">Campaign history</h1>
-  <div class="hist" id="histList"></div>
-  <button class="primary" style="margin-top:12px" onclick="closeModal('histModal')">Close</button>
-</div></div>
+<!-- ============ APP ============ -->
+<div class="shell hidden" id="view-app">
+  <div class="topbar">
+    <div class="brandmark">A</div>
+    <div class="biz" id="bizName">AdSathi</div>
+    <div class="grow"></div>
+    <div class="credits">Credits <b id="credits">0</b></div>
+    <button class="tbtn" id="topupBtn">+ Top up</button>
+    <button class="tbtn" id="editBizBtn">Business</button>
+    <button class="tbtn" id="logoutBtn">Logout</button>
+  </div>
+  <div class="banner ok hidden" id="banner"></div>
+  <div class="layout">
+    <nav class="nav">
+      <button class="on" data-tab="create" id="nav-create">🎬 Create</button>
+      <button data-tab="library" id="nav-library">📚 Library</button>
+      <button data-tab="ads" id="nav-ads">📈 Ads</button>
+      <div class="spacer"></div>
+      <div class="muted" style="font-size:12px;padding:10px 13px">Demo mode — content is sample output until AI keys are added.</div>
+    </nav>
+    <div class="main">
+      <!-- CREATE -->
+      <section id="tab-create">
+        <div class="h2">Create content</div>
+        <p class="lead">Describe the ad idea — AdSathi writes a shooting script or makes an image for it, tuned to your business.</p>
+        <div class="seg">
+          <button class="on" id="seg-script">🎬 Shooting script</button>
+          <button id="seg-image">🖼️ Image</button>
+        </div>
+        <div class="panel">
+          <label id="genLabel">What's this ad about?</label>
+          <div class="gen-row">
+            <input id="genTopic" class="inp" placeholder="e.g. Eid winter collection sale, 20% off"/>
+            <button class="btn" id="genBtn">Generate</button>
+          </div>
+          <div class="cost" id="genCost"></div>
+        </div>
+        <div class="result" id="genResult"></div>
+      </section>
 
+      <!-- LIBRARY -->
+      <section id="tab-library" class="hidden">
+        <div class="h2">Library</div>
+        <p class="lead">Everything you've generated.</p>
+        <div id="libList"></div>
+      </section>
+
+      <!-- ADS -->
+      <section id="tab-ads" class="hidden">
+        <div class="h2">Ads — analyse & auto-improve</div>
+        <p class="lead">Connect your Meta ad account and AdSathi's AI will read what's working and push better creative.</p>
+        <div class="soon">
+          <span class="tag">Coming soon</span>
+          <div>Once connected, the AI agent runs this loop for you:</div>
+          <div class="flow">
+            <span>① Monitor ad performance</span><span>② Analyse weak spots</span>
+            <span>③ Generate new script + image</span><span>④ Push as a new ad</span><span>↺ repeat</span>
+          </div>
+          <p class="muted" style="margin-top:16px;font-size:13px">Activates after your Meta Business verification & app review. We'll build & test it on your own ad account first — no waiting to start.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- topup modal -->
 <div class="modal hidden" id="topupModal"><div class="card">
-  <h1 style="font-size:18px">Top up credits</h1>
-  <p class="sub" style="color:var(--mut);font-size:13px">Pay in BDT via bKash / Nagad / card (SSLCommerz).</p>
+  <h1 style="font-size:19px">Top up credits</h1>
+  <p class="sub">Pay in BDT via bKash / Nagad / card.</p>
   <div class="topup-opt" id="topupOpts"></div>
   <div class="err" id="topupMsg"></div>
-  <button class="primary" id="topupGo">Pay now</button>
-  <button class="tbtn" style="width:100%;margin-top:8px" onclick="closeModal('topupModal')">Cancel</button>
+  <button class="btn block" id="topupGo">Pay now</button>
+  <button class="tbtn" style="width:100%;margin-top:10px" onclick="closeModal('topupModal')">Cancel</button>
+</div></div>
+
+<!-- edit business modal -->
+<div class="modal hidden" id="bizModal"><div class="card" style="max-height:88vh;overflow:auto">
+  <h1 style="font-size:19px">Your business</h1>
+  <label>Business name</label><input id="ebName" class="inp"/>
+  <label>What you sell</label><textarea id="ebProducts" class="inp"></textarea>
+  <div class="grid2"><div><label>Industry</label><input id="ebIndustry" class="inp"/></div><div><label>City</label><input id="ebCity" class="inp"/></div></div>
+  <label>Customers</label><input id="ebAudience" class="inp"/>
+  <div class="grid2"><div><label>Tone</label><select id="ebTone" class="inp"><option value="friendly">Friendly</option><option value="premium">Premium</option><option value="urgency">Urgent</option><option value="fun">Fun</option></select></div>
+  <div><label>Language</label><select id="ebLang" class="inp"><option value="bilingual">Bangla + English</option><option value="bn">Bangla</option><option value="en">English</option></select></div></div>
+  <label>Notes</label><textarea id="ebNotes" class="inp"></textarea>
+  <div class="err" id="ebErr"></div>
+  <button class="btn block" id="ebSave" style="margin-top:14px">Save</button>
+  <button class="tbtn" style="width:100%;margin-top:10px" onclick="closeModal('bizModal')">Cancel</button>
 </div></div>
 
 <script>
 const API = location.origin.includes("file") ? "http://127.0.0.1:8000" : "";
-const f = (p,o={}) => fetch(API+p, {credentials:"include", headers:{"Content-Type":"application/json"}, ...o}).then(async r=>{
-  const d = await r.json().catch(()=>({})); if(!r.ok) throw (d.detail||r.status); return d; });
-let signup=true, history=[], brief={}, state=null, selCap=0, topupCredits=50;
+const f = (p,o={}) => fetch(API+p,{credentials:"include",headers:{"Content-Type":"application/json"},...o})
+  .then(async r=>{const d=await r.json().catch(()=>({}));if(!r.ok)throw(d.detail||r.status);return d;});
+const $ = id => document.getElementById(id);
+let signup=true, kind="script", costs={script:2,image:2}, topupCredits=50;
 
-/* ---- auth ---- */
-function renderAuthMode(){
-  document.getElementById("authTitle").textContent = signup?"Create your account":"Welcome back";
-  document.getElementById("authBtn").textContent = signup?"Create account":"Log in";
+/* ---------- auth ---------- */
+function renderAuth(){
+  $("authTitle").textContent=signup?"Create your account":"Welcome back";
+  $("authBtn").textContent=signup?"Create account":"Log in";
   document.querySelectorAll(".signup-only").forEach(e=>e.classList.toggle("hidden",!signup));
-  document.getElementById("authToggle").innerHTML = signup
-    ? 'Already have an account? <a id="tg">Log in</a>'
-    : "New here? <a id=\"tg\">Create account</a>";
-  document.getElementById("tg").onclick=()=>{signup=!signup;renderAuthMode();};
+  $("authToggle").innerHTML=signup?'Already have an account? <a id="tg">Log in</a>':'New here? <a id="tg">Create account</a>';
+  $("tg").onclick=()=>{signup=!signup;renderAuth();};
 }
-document.getElementById("authBtn").onclick = async ()=>{
-  const email=auEmail.value.trim(), pass=auPass.value, name=auName.value.trim();
-  authErr.textContent="";
+$("authBtn").onclick=async()=>{
+  $("authErr").textContent="";
   try{
-    const path = signup?"/auth/signup":"/auth/login";
-    const body = signup?{email,name,password:pass}:{email,password:pass};
-    await f(path,{method:"POST",body:JSON.stringify(body)});
-    await boot();
-  }catch(e){ authErr.textContent = typeof e==="string"?e.replace(/_/g," "):"Something went wrong"; }
+    const body=signup?{email:auEmail.value.trim(),name:auName.value.trim(),password:auPass.value}
+                     :{email:auEmail.value.trim(),password:auPass.value};
+    await f(signup?"/auth/signup":"/auth/login",{method:"POST",body:JSON.stringify(body)});
+    boot();
+  }catch(e){$("authErr").textContent=typeof e==="string"?e.replace(/_/g," "):"Something went wrong";}
 };
 
-/* ---- boot ---- */
+/* ---------- onboarding ---------- */
+$("obNext").onclick=()=>{
+  if(!obName.value.trim()||!obProducts.value.trim()){$("obTitle").textContent="Please fill name & products";return;}
+  $("obStep1").classList.add("hidden");$("obStep2").classList.remove("hidden");
+  $("st2").classList.add("on");$("obTitle").textContent="A few brand details";
+};
+$("obBack").onclick=()=>{$("obStep2").classList.add("hidden");$("obStep1").classList.remove("hidden");$("st2").classList.remove("on");$("obTitle").textContent="Tell us about your business";};
+$("obSave").onclick=async()=>{
+  $("obErr").textContent="";
+  try{
+    await f("/api/profile",{method:"POST",body:JSON.stringify({
+      business_name:obName.value.trim(),products:obProducts.value.trim(),industry:obIndustry.value.trim(),
+      city:obCity.value.trim(),audience:obAudience.value.trim(),tone:obTone.value,language:obLang.value,notes:obNotes.value.trim()})});
+    boot();
+  }catch(e){$("obErr").textContent=typeof e==="string"?e.replace(/_/g," "):"Could not save";}
+};
+
+/* ---------- boot / routing ---------- */
 async function boot(){
-  let user;
-  try{ user = await f("/api/me"); }catch{ showAuth(); return; }
-  document.getElementById("auth").classList.add("hidden");
-  document.getElementById("app").classList.remove("hidden");
-  applyUser(user);
-  handleReturnParams();
-  if(!document.getElementById("thread").children.length)
-    bubble("assistant","আসসালামু আলাইকুম! 👋 কী বিক্রি করছেন বলুন — আমি ছবি, ক্যাপশন বানিয়ে অ্যাড চালু করে দেবো।\nTell me what you're selling and I'll create the image, caption, and launch the ad.");
+  let me; try{ me=await f("/api/me"); }catch{ return show("auth"); }
+  try{ costs=(await f("/api/health")).costs||costs; }catch{}
+  if(!me.has_profile) return show("onboard");
+  $("bizName").textContent=me.business_name||"AdSathi";
+  $("credits").textContent=me.credits;
+  show("app"); setTab("create"); renderCost();
+  handleReturn();
 }
-function showAuth(){ document.getElementById("app").classList.add("hidden");
-  document.getElementById("auth").classList.remove("hidden"); renderAuthMode(); }
-function applyUser(u){
-  document.getElementById("credits").textContent = u.credits;
-  const n=document.getElementById("notice");
-  if(!u.connected){ n.classList.remove("hidden");
-    n.textContent="⚠ Facebook account not connected — launches will run in demo (dry-run) mode. Click ‘Connect Facebook’ to go live.";
-  } else { n.classList.add("hidden"); }
-}
-function handleReturnParams(){
-  const q=new URLSearchParams(location.search);
-  if(q.get("connect")==="success") toast("✅ Facebook account connected!");
-  if(q.get("pay")==="success") toast("✅ Payment successful — credits added!");
-  if(location.search) history.replaceState({},"","/");
-  refreshUser();
-}
-async function refreshUser(){ try{ applyUser(await f("/api/me")); }catch{} }
-function toast(t){ const n=document.getElementById("notice"); n.classList.remove("hidden");
-  n.style.color="var(--ok)"; n.style.borderColor="var(--ok)"; n.textContent=t;
-  setTimeout(()=>{n.style.color="";n.style.borderColor="";refreshUser();},3500); }
+function show(v){["auth","onboard","app"].forEach(x=>$("view-"+x).classList.toggle("hidden",x!==v));if(v==="auth")renderAuth();}
+async function refreshMe(){try{const m=await f("/api/me");$("credits").textContent=m.credits;$("bizName").textContent=m.business_name||"AdSathi";}catch{}}
+function handleReturn(){const q=new URLSearchParams(location.search);if(q.get("pay")==="success")toast("✅ Payment successful — credits added!");if(location.search)history.replaceState({},"","/");}
+function toast(t){const b=$("banner");b.textContent=t;b.classList.remove("hidden");setTimeout(()=>b.classList.add("hidden"),3500);refreshMe();}
 
-/* ---- chat ---- */
-function bubble(role,text){ const d=document.createElement("div");
-  d.className="msg "+(role==="user"?"user":"bot"); d.textContent=text;
-  thread.appendChild(d); thread.scrollTop=thread.scrollHeight; }
-async function send(){
-  const text=inp.value.trim(); if(!text) return; inp.value=""; bubble("user",text);
-  history.push({role:"user",content:text});
+/* ---------- tabs ---------- */
+function setTab(t){
+  ["create","library","ads"].forEach(x=>{$("tab-"+x).classList.toggle("hidden",x!==t);$("nav-"+x).classList.toggle("on",x===t);});
+  if(t==="library")loadLibrary();
+}
+document.querySelectorAll(".nav button[data-tab]").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+
+/* ---------- create ---------- */
+$("seg-script").onclick=()=>{kind="script";$("seg-script").classList.add("on");$("seg-image").classList.remove("on");$("genLabel").textContent="What's this ad about?";$("genTopic").placeholder="e.g. Eid winter collection sale, 20% off";renderCost();};
+$("seg-image").onclick=()=>{kind="image";$("seg-image").classList.add("on");$("seg-script").classList.remove("on");$("genLabel").textContent="Describe the image you want";$("genTopic").placeholder="e.g. model wearing our jacket on a snowy Dhaka street";renderCost();};
+function renderCost(){$("genCost").textContent=`Costs ${costs[kind]} credits per generation.`;}
+$("genBtn").onclick=async()=>{
+  const topic=$("genTopic").value.trim(); if(!topic)return;
+  const btn=$("genBtn");btn.disabled=true;btn.innerHTML='<span class="loading"></span>';
   try{
-    const data=await f("/api/chat",{method:"POST",body:JSON.stringify({message:text,history,brief})});
-    brief=data.brief; bubble("assistant",data.reply); history.push({role:"assistant",content:data.reply});
-    if(data.ready_to_launch){ state=data; selCap=0; renderPanel(); refreshUser(); }
+    const d=await f("/api/generate/"+kind,{method:"POST",body:JSON.stringify({topic})});
+    $("credits").textContent=d.credits;
+    $("genResult").innerHTML = d.kind==="script"?renderScript(d.output):renderImage(d.output);
   }catch(e){
-    if(e==="insufficient_credits"){ bubble("assistant","আপনার ক্রেডিট শেষ। অনুগ্রহ করে Top up করুন। / You're out of credits — please top up.");
-      openTopup(); } else bubble("assistant","Error: "+e);
+    if(e==="insufficient_credits"){openTopup();$("genResult").innerHTML='<p class="muted">You\'re out of credits — top up to continue.</p>';}
+    else $("genResult").innerHTML='<p class="muted">Error: '+e+'</p>';
   }
+  btn.disabled=false;btn.textContent="Generate";
+};
+function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function renderScript(o){
+  const shots=(o.shots||[]).map((s,i)=>`<div class="shot"><div class="num">${i+1}</div><div style="flex:1">
+    <span class="sec">${s.seconds||""}s</span><div class="scene">🎥 ${esc(s.scene)}</div>
+    <div class="vo">🎙️ ${esc(s.voiceover_bn)}<br><span class="en">${esc(s.voiceover_en)}</span></div>
+    ${s.on_screen_text?`<div class="ost">On-screen: ${esc(s.on_screen_text)}</div>`:""}</div></div>`).join("");
+  return `<div class="scriptcard"><h3>${esc(o.title)}</h3>
+    <div class="muted" style="font-size:13px">~${o.duration_seconds||25}s · ${esc(o.music||"")}</div>
+    <div class="hook"><div class="k">Hook (first 3s)</div><div>${esc(o.hook_bn)}</div><div class="muted">${esc(o.hook_en)}</div></div>
+    ${shots}
+    <div class="hook"><div class="k">Call to action</div><div>${esc(o.cta_bn)}</div><div class="muted">${esc(o.cta_en)}</div></div>
+    <button class="btn ghost" onclick="copyScript(this)" data-s='${encodeURIComponent(JSON.stringify(o))}'>Copy script</button></div>`;
 }
-function renderPanel(){
-  const p=document.getElementById("panel"); p.innerHTML="";
-  const img=state.images[0];
-  if(img){ const c=document.createElement("div"); c.className="imgcard";
-    c.innerHTML=`<img src="${img.url}" alt="ad"/>`; p.appendChild(c); }
-  state.captions.forEach((cap,i)=>{ const c=document.createElement("div");
-    c.className="cap"+(i===selCap?" sel":"");
-    c.innerHTML=`<div class="tone">${cap.tone}</div><div>${cap.bn}</div><div class="en">${cap.en}</div>`;
-    c.onclick=()=>{selCap=i;renderPanel();}; p.appendChild(c); });
-  const pl=state.campaign_plan; const plan=document.createElement("div"); plan.className="plan";
-  plan.innerHTML=`<div style="margin:14px 0 6px"><b>Campaign plan</b></div>
-    <div><span class="pill">${pl.objective}</span><span class="pill">${pl.audience.location}</span>
-    <span class="pill">age ${pl.audience.age_min}-${pl.audience.age_max}</span></div>
-    <div><b>Budget:</b> ${pl.daily_budget_bdt} BDT/day · <b>${pl.schedule_days} days</b></div>
-    <div><b>Placements:</b> ${pl.placements.join(", ")}</div>`;
-  p.appendChild(plan);
-  const btn=document.createElement("button"); btn.className="launch";
-  btn.textContent="🚀 Launch ad (creates PAUSED)"; btn.onclick=()=>launch(btn); p.appendChild(btn);
+function renderImage(o){
+  const img=(o.images||[])[0]||{};
+  return `<div class="scriptcard"><h3>Generated image</h3>
+    <div class="imgwrap"><img src="${img.url}" alt="ad"/></div>
+    <p class="muted" style="font-size:12px;margin-top:10px">Bangla headline is added as a real text layer. Right-click → Save image.</p></div>`;
 }
-async function launch(btn){
-  btn.disabled=true; btn.textContent="Launching…";
+function copyScript(btn){
+  const o=JSON.parse(decodeURIComponent(btn.dataset.s));
+  let t=o.title+"\n\nHOOK: "+o.hook_bn+" / "+o.hook_en+"\n\n";
+  (o.shots||[]).forEach((s,i)=>{t+=`SHOT ${i+1} (${s.seconds||""}s)\nScene: ${s.scene}\nVO: ${s.voiceover_bn} / ${s.voiceover_en}\n`+(s.on_screen_text?`On-screen: ${s.on_screen_text}\n`:"")+"\n";});
+  t+="CTA: "+o.cta_bn+" / "+o.cta_en;
+  navigator.clipboard.writeText(t).then(()=>{btn.textContent="Copied ✓";setTimeout(()=>btn.textContent="Copy script",1500);});
+}
+
+/* ---------- library ---------- */
+async function loadLibrary(){
+  const el=$("libList");el.innerHTML='<p class="muted">Loading…</p>';
   try{
-    const res=await f("/api/launch",{method:"POST",body:JSON.stringify({
-      campaign_plan:state.campaign_plan, caption:state.captions[selCap], image:state.images[0], activate:false})});
-    const d=document.createElement("div"); d.className="result";
-    d.textContent=`Status: ${res.status} (${res.dry_run?"DRY RUN":"LIVE"})\nCampaign: ${res.campaign_id}\nAd: ${res.ad_id}\nReview: ${res.review_status}\n\n`+res.notes.join("\n");
-    document.getElementById("panel").appendChild(d); refreshUser();
-  }catch(e){ alert("Launch failed: "+e); }
-  btn.disabled=false; btn.textContent="🚀 Launch ad (creates PAUSED)";
+    const {generations}=await f("/api/history");
+    if(!generations.length){el.innerHTML='<p class="muted">Nothing yet — generate something in Create.</p>';return;}
+    el.innerHTML="";
+    generations.forEach(g=>{
+      const d=document.createElement("div");d.className="libitem";
+      d.innerHTML=`<div class="ic">${g.kind==="script"?"🎬":"🖼️"}</div><div style="flex:1"><div class="t">${esc(g.title||g.prompt)}</div><div class="d">${g.kind} · ${new Date((g.created_at||0)*1000).toLocaleString()}</div></div>`;
+      d.onclick=()=>{setTab("create");$("genResult").innerHTML=g.kind==="script"?renderScript(g.output):renderImage(g.output);window.scrollTo(0,0);};
+      el.appendChild(d);
+    });
+  }catch(e){el.innerHTML='<p class="muted">Error loading.</p>';}
 }
 
-/* ---- history ---- */
-document.getElementById("histBtn").onclick=async()=>{
-  const {campaigns}=await f("/api/campaigns"); const l=document.getElementById("histList");
-  l.innerHTML = campaigns.length?"":"<div class='empty' style='margin:20px'>No campaigns yet.</div>";
-  campaigns.forEach(c=>{ const cap=JSON.parse(c.caption_json||"{}");
-    const d=document.createElement("div"); d.className="hrow";
-    d.innerHTML=`<div><b>${c.meta_ad_id||c.name}</b> — <span class="${c.dry_run?'dr':'st'}">${c.dry_run?'DRY RUN':'LIVE'} ${c.status||''}</span></div>
-      <div style="color:var(--mut);margin-top:4px">${(cap.bn||'').slice(0,80)}</div>`;
-    l.appendChild(d); });
-  openModal("histModal");
+/* ---------- topup ---------- */
+function openTopup(){const o=$("topupOpts");o.innerHTML="";[50,150,500].forEach(c=>{const b=document.createElement("button");b.textContent=c+" credits";if(c===topupCredits)b.classList.add("on");b.onclick=()=>{topupCredits=c;openTopup();};o.appendChild(b);});$("topupMsg").textContent=`= ${topupCredits*10} BDT`;openModal("topupModal");}
+$("topupBtn").onclick=openTopup;
+$("topupGo").onclick=async()=>{const r=await f("/api/billing/topup",{method:"POST",body:JSON.stringify({credits:topupCredits})});location.href=r.gateway_url;};
+
+/* ---------- edit business ---------- */
+$("editBizBtn").onclick=async()=>{
+  try{const {profile}=await f("/api/profile");if(profile){ebName.value=profile.business_name||"";ebProducts.value=profile.products||"";ebIndustry.value=profile.industry||"";ebCity.value=profile.city||"";ebAudience.value=profile.audience||"";ebTone.value=profile.tone||"friendly";ebLang.value=profile.language||"bilingual";ebNotes.value=profile.notes||"";}}catch{}
+  openModal("bizModal");
+};
+$("ebSave").onclick=async()=>{
+  $("ebErr").textContent="";
+  try{await f("/api/profile",{method:"POST",body:JSON.stringify({business_name:ebName.value.trim(),products:ebProducts.value.trim(),industry:ebIndustry.value.trim(),city:ebCity.value.trim(),audience:ebAudience.value.trim(),tone:ebTone.value,language:ebLang.value,notes:ebNotes.value.trim()})});closeModal("bizModal");refreshMe();}
+  catch(e){$("ebErr").textContent=typeof e==="string"?e.replace(/_/g," "):"Could not save";}
 };
 
-/* ---- topup ---- */
-function openTopup(){ const opts=document.getElementById("topupOpts"); opts.innerHTML="";
-  [50,150,500].forEach(c=>{ const b=document.createElement("button");
-    b.textContent=`${c} credits`; if(c===topupCredits)b.classList.add("sel");
-    b.onclick=()=>{topupCredits=c;openTopup();}; opts.appendChild(b); });
-  document.getElementById("topupMsg").textContent=`= ${topupCredits*10} BDT`;
-  openModal("topupModal"); }
-document.getElementById("topupBtn").onclick=openTopup;
-document.getElementById("topupGo").onclick=async()=>{
-  const r=await f("/api/billing/topup",{method:"POST",body:JSON.stringify({credits:topupCredits})});
-  location.href = r.gateway_url;   // dry-run auto-confirms; real -> SSLCommerz page
-};
-
-document.getElementById("connBtn").onclick=async()=>{
-  const r=await f("/connect/facebook/start"); location.href=r.login_url; };
-document.getElementById("logoutBtn").onclick=async()=>{ await f("/auth/logout",{method:"POST"}); showAuth(); };
-document.getElementById("send").onclick=send;
-inp && inp.addEventListener("keydown",e=>{ if(e.key==="Enter") send(); });
-function openModal(id){document.getElementById(id).classList.remove("hidden");}
-function closeModal(id){document.getElementById(id).classList.add("hidden");}
+$("logoutBtn").onclick=async()=>{await f("/auth/logout",{method:"POST"});show("auth");};
+function openModal(id){$(id).classList.remove("hidden");}
+function closeModal(id){$(id).classList.add("hidden");}
+[auEmail,auPass].forEach(e=>e.addEventListener("keydown",ev=>{if(ev.key==="Enter")$("authBtn").click();}));
 
 boot();
 </script>
