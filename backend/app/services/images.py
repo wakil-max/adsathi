@@ -104,3 +104,10 @@ def bytes_for(image: AdImage) -> Optional[bytes]:
     if image.png_b64:
         return base64.b64decode(image.png_b64)
     return None
+
+
+def generate_for(profile: dict, prompt: str, n: int = 1):
+    """Generate ad image(s) from the business profile + a free-form description."""
+    product = (profile or {}).get("products") or prompt or "Product"
+    brief = {"product": product, "offer": (prompt or "")[:30]}
+    return generate(brief, n)
