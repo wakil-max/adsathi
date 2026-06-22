@@ -33,6 +33,13 @@ TABLES = [
     f"""CREATE TABLE IF NOT EXISTS credit_ledger (
         id {_PK}, user_id INTEGER NOT NULL, delta INTEGER NOT NULL, reason TEXT, ref TEXT,
         created_at INTEGER NOT NULL)""",
+    f"""CREATE TABLE IF NOT EXISTS profiles (
+        id {_PK}, user_id INTEGER UNIQUE NOT NULL, business_name TEXT, industry TEXT,
+        products TEXT, audience TEXT, tone TEXT, language TEXT, city TEXT, notes TEXT,
+        created_at INTEGER NOT NULL)""",
+    f"""CREATE TABLE IF NOT EXISTS generations (
+        id {_PK}, user_id INTEGER NOT NULL, kind TEXT, title TEXT, prompt TEXT,
+        output_json TEXT, created_at INTEGER NOT NULL)""",
 ]
 
 
@@ -173,4 +180,42 @@ def save_campaign(user_id: int, data: dict[str, Any]) -> int:
 def list_campaigns(user_id: int, limit: int = 50) -> list[dict]:
     with conn() as c:
         return _all(c, "SELECT * FROM campaigns WHERE user_id=? ORDER BY id DESC LIMIT ?",
+                    (user_id, limit))
+
+
+# ---------- business profile (onboarding) ----------
+def save_profile(user_id: int, p: dict) -> None:
+    fields = ("business_name", "industry", "products", "audience", "tone",
+              "language", "city", "notes")
+    vals = tuple(p.get(f, "") for f in fields)
+    with conn() as c:
+        exists = _one(c, "SELECT id FROM profiles WHERE user_id=?", (user_id,))
+        if exists:
+            c.execute(_q("UPDATE profiles SET business_name=?,industry=?,products=?,"
+                         "audience=?,tone=?,language=?,city=?,notes=? WHERE user_id=?"),
+                      vals + (user_id,))
+        else:
+            _insert(c, "INSERT INTO profiles(user_id,business_name,industry,products,"
+                       "audience,tone,language,city,notes,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)",
+                    (user_id,) + vals + (int(time.time()),))
+
+
+def get_profile(user_id: int) -> Optional[dict]:
+    with conn() as c:
+        return _one(c, "SELECT * FROM profiles WHERE user_id=?", (user_id,))
+
+
+# ---------- generation history ----------
+def save_generation(user_id: int, kind: str, title: str, prompt: str, output: dict) -> int:
+    with conn() as c:
+        return _insert(
+            c, "INSERT INTO generations(user_id,kind,title,prompt,output_json,created_at)"
+               " VALUES(?,?,?,?,?,?)",
+            (user_id, kind, title, prompt, json.dumps(output, ensure_ascii=False),
+             int(time.time())))
+
+
+def list_generations(user_id: int, limit: int = 50) -> list[dict]:
+    with conn() as c:
+        return _all(c, "SELECT * FROM generations WHERE user_id=? ORDER BY id DESC LIMIT ?",
                     (user_id, limit))

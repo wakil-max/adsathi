@@ -28,6 +28,7 @@ class Settings:
     # Credits charged per action.
     CREDITS_PER_IMAGE: int = int(os.getenv("CREDITS_PER_IMAGE", "2"))
     CREDITS_PER_CAPTION_SET: int = int(os.getenv("CREDITS_PER_CAPTION_SET", "1"))
+    CREDITS_PER_SCRIPT: int = int(os.getenv("CREDITS_PER_SCRIPT", "2"))
     CREDITS_PER_LAUNCH: int = int(os.getenv("CREDITS_PER_LAUNCH", "5"))
     # BDT price per credit when topping up.
     BDT_PER_CREDIT: int = int(os.getenv("BDT_PER_CREDIT", "10"))
