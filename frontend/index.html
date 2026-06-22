@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AdSathi — AI Ad Assistant for Bangladesh</title>
+<style>
+  :root{--bg:#0b1220;--panel:#121a2b;--bubble:#1b2740;--me:#2563eb;--txt:#e6edf6;--mut:#8aa0c0;--ok:#10b981;--warn:#f59e0b;--bd:#243553}
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;font-family:'Segoe UI',system-ui,'Noto Sans Bengali',sans-serif;background:var(--bg);color:var(--txt)}
+  button{cursor:pointer;font-family:inherit}
+  .hidden{display:none!important}
+  /* auth */
+  .authwrap{min-height:100vh;display:grid;place-items:center;padding:20px}
+  .card{background:var(--panel);border:1px solid var(--bd);border-radius:18px;padding:28px;width:380px;max-width:100%}
+  .card h1{margin:0 0 4px;font-size:22px} .card p.sub{margin:0 0 18px;color:var(--mut);font-size:14px}
+  .card input{width:100%;background:#0e1626;border:1px solid var(--bd);color:var(--txt);padding:12px;border-radius:10px;margin-bottom:10px;font-size:15px}
+  .card button.primary{width:100%;background:var(--me);color:#fff;border:0;padding:12px;border-radius:10px;font-weight:600;font-size:15px}
+  .card .toggle{text-align:center;margin-top:14px;color:var(--mut);font-size:14px}
+  .card .toggle a{color:#60a5fa;cursor:pointer}
+  .err{color:#fca5a5;font-size:13px;margin-bottom:8px;min-height:16px}
+  /* app */
+  .app{height:100vh;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--bd)}
+  .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#0ea5e9);display:grid;place-items:center;font-weight:700}
+  .topbar .grow{flex:1}
+  .badge{background:#0e1626;border:1px solid var(--bd);border-radius:999px;padding:6px 12px;font-size:13px}
+  .badge b{color:var(--ok)}
+  .tbtn{background:#1b2740;border:1px solid var(--bd);color:var(--txt);padding:7px 12px;border-radius:9px;font-size:13px}
+  .tbtn.warn{border-color:var(--warn);color:var(--warn)}
+  .body{flex:1;display:flex;min-height:0}
+  .chatcol{flex:1;display:flex;flex-direction:column;min-width:0}
+  .notice{background:#1f2937;border-bottom:1px solid var(--warn);padding:8px 18px;font-size:13px;color:var(--warn)}
+  .thread{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+  .msg{max-width:72%;padding:11px 14px;border-radius:14px;line-height:1.5;white-space:pre-wrap}
+  .msg.user{align-self:flex-end;background:var(--me)} .msg.bot{align-self:flex-start;background:var(--bubble)}
+  .composer{display:flex;gap:10px;padding:14px;border-top:1px solid var(--bd)}
+  .composer input{flex:1;background:#0e1626;border:1px solid var(--bd);color:var(--txt);padding:12px 14px;border-radius:12px;font-size:15px}
+  .composer button{background:var(--me);color:#fff;border:0;padding:0 20px;border-radius:12px;font-weight:600}
+  .side{width:390px;background:var(--panel);border-left:1px solid var(--bd);overflow-y:auto}
+  .side h3{margin:0;padding:14px 16px;border-bottom:1px solid var(--bd);font-size:12px;letter-spacing:.05em;color:var(--mut);text-transform:uppercase}
+  .pad{padding:16px}
+  .imgcard{border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin-bottom:12px}
+  .imgcard img{width:100%;display:block}
+  .cap{border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:14px}
+  .cap.sel{border-color:var(--me);background:#15213c}
+  .cap .tone{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+  .cap .en{color:var(--mut);font-size:13px;margin-top:4px}
+  .plan{font-size:14px;line-height:1.7} .plan b{color:var(--mut)}
+  .pill{display:inline-block;background:#0e1626;border:1px solid var(--bd);border-radius:999px;padding:3px 9px;font-size:12px;color:var(--mut);margin:0 4px 6px 0}
+  .launch{width:100%;background:var(--ok);color:#03130c;border:0;padding:13px;border-radius:12px;font-weight:700;font-size:15px;margin-top:8px}
+  .launch:disabled{opacity:.45}
+  .result{background:#0e1626;border:1px solid var(--ok);border-radius:10px;padding:12px;font-size:13px;margin-top:10px;white-space:pre-wrap}
+  .empty{color:var(--mut);font-size:14px;text-align:center;margin-top:60px;line-height:1.7}
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:grid;place-items:center;z-index:50}
+  .modal .card{width:520px}
+  .hist{max-height:60vh;overflow:auto}
+  .hrow{border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px}
+  .hrow .st{color:var(--ok)} .hrow .dr{color:var(--warn)}
+  .topup-opt{display:flex;gap:8px;margin:10px 0}
+  .topup-opt button{flex:1;background:#0e1626;border:1px solid var(--bd);color:var(--txt);padding:10px;border-radius:10px}
+  .topup-opt button.sel{border-color:var(--me);background:#15213c}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div class="authwrap" id="auth">
+  <div class="card">
+    <div class="logo" style="margin-bottom:12px">A</div>
+    <h1 id="authTitle">Welcome to AdSathi</h1>
+    <p class="sub">বাংলাদেশের জন্য AI বিজ্ঞাপন সহকারী · AI ad assistant for Bangladesh</p>
+    <div class="err" id="authErr"></div>
+    <input id="auName" placeholder="Your name / আপনার নাম" class="signup-only"/>
+    <input id="auEmail" placeholder="Email" type="email"/>
+    <input id="auPass" placeholder="Password" type="password"/>
+    <button class="primary" id="authBtn">Create account</button>
+    <div class="toggle" id="authToggle"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app hidden" id="app">
+  <div class="topbar">
+    <div class="logo">A</div>
+    <div><div style="font-weight:700">AdSathi</div></div>
+    <div class="grow"></div>
+    <div class="badge">Credits: <b id="credits">0</b></div>
+    <button class="tbtn" id="topupBtn">+ Top up</button>
+    <button class="tbtn" id="connBtn">Connect Facebook</button>
+    <button class="tbtn" id="histBtn">History</button>
+    <button class="tbtn" id="logoutBtn">Logout</button>
+  </div>
+  <div class="notice hidden" id="notice"></div>
+  <div class="body">
+    <div class="chatcol">
+      <div class="thread" id="thread"></div>
+      <div class="composer">
+        <input id="inp" placeholder="যেমন: আমি শীতের জ্যাকেট বিক্রি করি, ঢাকায় ৫০০ টাকা বাজেটে... / e.g. I sell jackets in Dhaka, 500tk/day"/>
+        <button id="send">পাঠান</button>
+      </div>
+    </div>
+    <div class="side">
+      <h3>Creative & Campaign</h3>
+      <div class="pad" id="panel">
+        <div class="empty">এখানে তৈরি করা ছবি, ক্যাপশন ও ক্যাম্পেইন প্ল্যান দেখাবে।<br/>Your generated images, captions & campaign plan appear here.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- modals -->
+<div class="modal hidden" id="histModal"><div class="card">
+  <h1 style="font-size:18px">Campaign history</h1>
+  <div class="hist" id="histList"></div>
+  <button class="primary" style="margin-top:12px" onclick="closeModal('histModal')">Close</button>
+</div></div>
+
+<div class="modal hidden" id="topupModal"><div class="card">
+  <h1 style="font-size:18px">Top up credits</h1>
+  <p class="sub" style="color:var(--mut);font-size:13px">Pay in BDT via bKash / Nagad / card (SSLCommerz).</p>
+  <div class="topup-opt" id="topupOpts"></div>
+  <div class="err" id="topupMsg"></div>
+  <button class="primary" id="topupGo">Pay now</button>
+  <button class="tbtn" style="width:100%;margin-top:8px" onclick="closeModal('topupModal')">Cancel</button>
+</div></div>
+
+<script>
+const API = location.origin.includes("file") ? "http://127.0.0.1:8000" : "";
+const f = (p,o={}) => fetch(API+p, {credentials:"include", headers:{"Content-Type":"application/json"}, ...o}).then(async r=>{
+  const d = await r.json().catch(()=>({})); if(!r.ok) throw (d.detail||r.status); return d; });
+let signup=true, history=[], brief={}, state=null, selCap=0, topupCredits=50;
+
+/* ---- auth ---- */
+function renderAuthMode(){
+  document.getElementById("authTitle").textContent = signup?"Create your account":"Welcome back";
+  document.getElementById("authBtn").textContent = signup?"Create account":"Log in";
+  document.querySelectorAll(".signup-only").forEach(e=>e.classList.toggle("hidden",!signup));
+  document.getElementById("authToggle").innerHTML = signup
+    ? 'Already have an account? <a id="tg">Log in</a>'
+    : "New here? <a id=\"tg\">Create account</a>";
+  document.getElementById("tg").onclick=()=>{signup=!signup;renderAuthMode();};
+}
+document.getElementById("authBtn").onclick = async ()=>{
+  const email=auEmail.value.trim(), pass=auPass.value, name=auName.value.trim();
+  authErr.textContent="";
+  try{
+    const path = signup?"/auth/signup":"/auth/login";
+    const body = signup?{email,name,password:pass}:{email,password:pass};
+    await f(path,{method:"POST",body:JSON.stringify(body)});
+    await boot();
+  }catch(e){ authErr.textContent = typeof e==="string"?e.replace(/_/g," "):"Something went wrong"; }
+};
+
+/* ---- boot ---- */
+async function boot(){
+  let user;
+  try{ user = await f("/api/me"); }catch{ showAuth(); return; }
+  document.getElementById("auth").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  applyUser(user);
+  handleReturnParams();
+  if(!document.getElementById("thread").children.length)
+    bubble("assistant","আসসালামু আলাইকুম! 👋 কী বিক্রি করছেন বলুন — আমি ছবি, ক্যাপশন বানিয়ে অ্যাড চালু করে দেবো।\nTell me what you're selling and I'll create the image, caption, and launch the ad.");
+}
+function showAuth(){ document.getElementById("app").classList.add("hidden");
+  document.getElementById("auth").classList.remove("hidden"); renderAuthMode(); }
+function applyUser(u){
+  document.getElementById("credits").textContent = u.credits;
+  const n=document.getElementById("notice");
+  if(!u.connected){ n.classList.remove("hidden");
+    n.textContent="⚠ Facebook account not connected — launches will run in demo (dry-run) mode. Click ‘Connect Facebook’ to go live.";
+  } else { n.classList.add("hidden"); }
+}
+function handleReturnParams(){
+  const q=new URLSearchParams(location.search);
+  if(q.get("connect")==="success") toast("✅ Facebook account connected!");
+  if(q.get("pay")==="success") toast("✅ Payment successful — credits added!");
+  if(location.search) history.replaceState({},"","/");
+  refreshUser();
+}
+async function refreshUser(){ try{ applyUser(await f("/api/me")); }catch{} }
+function toast(t){ const n=document.getElementById("notice"); n.classList.remove("hidden");
+  n.style.color="var(--ok)"; n.style.borderColor="var(--ok)"; n.textContent=t;
+  setTimeout(()=>{n.style.color="";n.style.borderColor="";refreshUser();},3500); }
+
+/* ---- chat ---- */
+function bubble(role,text){ const d=document.createElement("div");
+  d.className="msg "+(role==="user"?"user":"bot"); d.textContent=text;
+  thread.appendChild(d); thread.scrollTop=thread.scrollHeight; }
+async function send(){
+  const text=inp.value.trim(); if(!text) return; inp.value=""; bubble("user",text);
+  history.push({role:"user",content:text});
+  try{
+    const data=await f("/api/chat",{method:"POST",body:JSON.stringify({message:text,history,brief})});
+    brief=data.brief; bubble("assistant",data.reply); history.push({role:"assistant",content:data.reply});
+    if(data.ready_to_launch){ state=data; selCap=0; renderPanel(); refreshUser(); }
+  }catch(e){
+    if(e==="insufficient_credits"){ bubble("assistant","আপনার ক্রেডিট শেষ। অনুগ্রহ করে Top up করুন। / You're out of credits — please top up.");
+      openTopup(); } else bubble("assistant","Error: "+e);
+  }
+}
+function renderPanel(){
+  const p=document.getElementById("panel"); p.innerHTML="";
+  const img=state.images[0];
+  if(img){ const c=document.createElement("div"); c.className="imgcard";
+    c.innerHTML=`<img src="${img.url}" alt="ad"/>`; p.appendChild(c); }
+  state.captions.forEach((cap,i)=>{ const c=document.createElement("div");
+    c.className="cap"+(i===selCap?" sel":"");
+    c.innerHTML=`<div class="tone">${cap.tone}</div><div>${cap.bn}</div><div class="en">${cap.en}</div>`;
+    c.onclick=()=>{selCap=i;renderPanel();}; p.appendChild(c); });
+  const pl=state.campaign_plan; const plan=document.createElement("div"); plan.className="plan";
+  plan.innerHTML=`<div style="margin:14px 0 6px"><b>Campaign plan</b></div>
+    <div><span class="pill">${pl.objective}</span><span class="pill">${pl.audience.location}</span>
+    <span class="pill">age ${pl.audience.age_min}-${pl.audience.age_max}</span></div>
+    <div><b>Budget:</b> ${pl.daily_budget_bdt} BDT/day · <b>${pl.schedule_days} days</b></div>
+    <div><b>Placements:</b> ${pl.placements.join(", ")}</div>`;
+  p.appendChild(plan);
+  const btn=document.createElement("button"); btn.className="launch";
+  btn.textContent="🚀 Launch ad (creates PAUSED)"; btn.onclick=()=>launch(btn); p.appendChild(btn);
+}
+async function launch(btn){
+  btn.disabled=true; btn.textContent="Launching…";
+  try{
+    const res=await f("/api/launch",{method:"POST",body:JSON.stringify({
+      campaign_plan:state.campaign_plan, caption:state.captions[selCap], image:state.images[0], activate:false})});
+    const d=document.createElement("div"); d.className="result";
+    d.textContent=`Status: ${res.status} (${res.dry_run?"DRY RUN":"LIVE"})\nCampaign: ${res.campaign_id}\nAd: ${res.ad_id}\nReview: ${res.review_status}\n\n`+res.notes.join("\n");
+    document.getElementById("panel").appendChild(d); refreshUser();
+  }catch(e){ alert("Launch failed: "+e); }
+  btn.disabled=false; btn.textContent="🚀 Launch ad (creates PAUSED)";
+}
+
+/* ---- history ---- */
+document.getElementById("histBtn").onclick=async()=>{
+  const {campaigns}=await f("/api/campaigns"); const l=document.getElementById("histList");
+  l.innerHTML = campaigns.length?"":"<div class='empty' style='margin:20px'>No campaigns yet.</div>";
+  campaigns.forEach(c=>{ const cap=JSON.parse(c.caption_json||"{}");
+    const d=document.createElement("div"); d.className="hrow";
+    d.innerHTML=`<div><b>${c.meta_ad_id||c.name}</b> — <span class="${c.dry_run?'dr':'st'}">${c.dry_run?'DRY RUN':'LIVE'} ${c.status||''}</span></div>
+      <div style="color:var(--mut);margin-top:4px">${(cap.bn||'').slice(0,80)}</div>`;
+    l.appendChild(d); });
+  openModal("histModal");
+};
+
+/* ---- topup ---- */
+function openTopup(){ const opts=document.getElementById("topupOpts"); opts.innerHTML="";
+  [50,150,500].forEach(c=>{ const b=document.createElement("button");
+    b.textContent=`${c} credits`; if(c===topupCredits)b.classList.add("sel");
+    b.onclick=()=>{topupCredits=c;openTopup();}; opts.appendChild(b); });
+  document.getElementById("topupMsg").textContent=`= ${topupCredits*10} BDT`;
+  openModal("topupModal"); }
+document.getElementById("topupBtn").onclick=openTopup;
+document.getElementById("topupGo").onclick=async()=>{
+  const r=await f("/api/billing/topup",{method:"POST",body:JSON.stringify({credits:topupCredits})});
+  location.href = r.gateway_url;   // dry-run auto-confirms; real -> SSLCommerz page
+};
+
+document.getElementById("connBtn").onclick=async()=>{
+  const r=await f("/connect/facebook/start"); location.href=r.login_url; };
+document.getElementById("logoutBtn").onclick=async()=>{ await f("/auth/logout",{method:"POST"}); showAuth(); };
+document.getElementById("send").onclick=send;
+inp && inp.addEventListener("keydown",e=>{ if(e.key==="Enter") send(); });
+function openModal(id){document.getElementById(id).classList.remove("hidden");}
+function closeModal(id){document.getElementById(id).classList.add("hidden");}
+
+boot();
+</script>
+</body>
+</html>
