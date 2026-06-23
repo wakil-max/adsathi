@@ -185,11 +185,16 @@
           <button id="seg-image">🖼️ Image</button>
         </div>
         <div class="panel">
-          <label id="genLabel">What's this ad about?</label>
-          <div class="gen-row">
-            <input id="genTopic" class="inp" placeholder="e.g. Eid winter collection sale, 20% off"/>
-            <button class="btn" id="genBtn">Generate</button>
+          <div class="seg" id="imgModeSeg" style="display:none">
+            <button class="on" id="im-auto">✨ Auto (no prompt)</button>
+            <button id="im-describe">✍️ Describe it</button>
           </div>
+          <label id="genLabel">What's this ad about?</label>
+          <div class="gen-row" id="genInputRow">
+            <input id="genTopic" class="inp" placeholder="e.g. Eid winter collection sale, 20% off"/>
+          </div>
+          <div class="muted" id="autoHint" style="display:none;margin:2px 0 4px;font-size:13px">No prompt needed — AdSathi designs an image from your business profile. Click again for a new variation.</div>
+          <div style="margin-top:12px"><button class="btn" id="genBtn">Generate</button></div>
           <div class="cost" id="genCost"></div>
         </div>
         <div class="result" id="genResult"></div>
@@ -250,7 +255,7 @@ const API = location.origin.includes("file") ? "http://127.0.0.1:8000" : "";
 const f = (p,o={}) => fetch(API+p,{credentials:"include",headers:{"Content-Type":"application/json"},...o})
   .then(async r=>{const d=await r.json().catch(()=>({}));if(!r.ok)throw(d.detail||r.status);return d;});
 const $ = id => document.getElementById(id);
-let signup=true, kind="script", costs={script:2,image:2}, topupCredits=50;
+let signup=true, kind="script", imgMode="auto", costs={script:2,image:2}, topupCredits=50;
 
 /* ---------- auth ---------- */
 function renderAuth(){
@@ -310,21 +315,31 @@ function setTab(t){
 document.querySelectorAll(".nav button[data-tab]").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 
 /* ---------- create ---------- */
-$("seg-script").onclick=()=>{kind="script";$("seg-script").classList.add("on");$("seg-image").classList.remove("on");$("genLabel").textContent="What's this ad about?";$("genTopic").placeholder="e.g. Eid winter collection sale, 20% off";renderCost();};
-$("seg-image").onclick=()=>{kind="image";$("seg-image").classList.add("on");$("seg-script").classList.remove("on");$("genLabel").textContent="Describe the image you want";$("genTopic").placeholder="e.g. model wearing our jacket on a snowy Dhaka street";renderCost();};
+$("seg-script").onclick=()=>{kind="script";$("seg-script").classList.add("on");$("seg-image").classList.remove("on");$("imgModeSeg").style.display="none";$("genLabel").style.display="";$("genInputRow").style.display="";$("autoHint").style.display="none";$("genLabel").textContent="What's this ad about?";$("genTopic").placeholder="e.g. Eid winter collection sale, 20% off";$("genBtn").textContent="Generate";renderCost();};
+$("seg-image").onclick=()=>{kind="image";$("seg-image").classList.add("on");$("seg-script").classList.remove("on");$("imgModeSeg").style.display="inline-flex";applyImgMode();renderCost();};
+$("im-auto").onclick=()=>{imgMode="auto";$("im-auto").classList.add("on");$("im-describe").classList.remove("on");applyImgMode();};
+$("im-describe").onclick=()=>{imgMode="describe";$("im-describe").classList.add("on");$("im-auto").classList.remove("on");applyImgMode();};
+function applyImgMode(){
+  if(kind!=="image")return;
+  if(imgMode==="auto"){$("genLabel").style.display="none";$("genInputRow").style.display="none";$("autoHint").style.display="";$("genBtn").textContent="✨ Generate image";}
+  else{$("genLabel").style.display="";$("genInputRow").style.display="";$("autoHint").style.display="none";$("genLabel").textContent="Describe the image you want";$("genTopic").placeholder="e.g. model wearing our jacket on a snowy Dhaka street";$("genBtn").textContent="Generate";}
+}
 function renderCost(){$("genCost").textContent=`Costs ${costs[kind]} credits per generation.`;}
 $("genBtn").onclick=async()=>{
-  const topic=$("genTopic").value.trim(); if(!topic)return;
-  const btn=$("genBtn");btn.disabled=true;btn.innerHTML='<span class="loading"></span>';
+  const isAuto = (kind==="image" && imgMode==="auto");
+  const topic=$("genTopic").value.trim();
+  if(!isAuto && !topic){$("genTopic").focus();return;}
+  const btn=$("genBtn");const label=btn.textContent;btn.disabled=true;btn.innerHTML='<span class="loading"></span>';
   try{
-    const d=await f("/api/generate/"+kind,{method:"POST",body:JSON.stringify({topic})});
+    const body = isAuto ? {auto:true} : {topic};
+    const d=await f("/api/generate/"+kind,{method:"POST",body:JSON.stringify(body)});
     $("credits").textContent=d.credits;
     $("genResult").innerHTML = d.kind==="script"?renderScript(d.output):renderImage(d.output);
   }catch(e){
     if(e==="insufficient_credits"){openTopup();$("genResult").innerHTML='<p class="muted">You\'re out of credits — top up to continue.</p>';}
     else $("genResult").innerHTML='<p class="muted">Error: '+e+'</p>';
   }
-  btn.disabled=false;btn.textContent="Generate";
+  btn.disabled=false;btn.textContent=label;
 };
 function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
 function renderScript(o){
