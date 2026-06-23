@@ -39,7 +39,7 @@ class Settings:
     LLM_MODEL: str = os.getenv("LLM_MODEL", "claude-sonnet-4-6")
 
     # Images
-    IMAGE_PROVIDER: str = os.getenv("IMAGE_PROVIDER", "stub")  # stub | openai
+    IMAGE_PROVIDER: str = os.getenv("IMAGE_PROVIDER", "pollinations")  # pollinations (free) | openai | stub
     IMAGE_API_KEY: str = os.getenv("IMAGE_API_KEY", "")
     IMAGE_MODEL: str = os.getenv("IMAGE_MODEL", "gpt-image-1")
 

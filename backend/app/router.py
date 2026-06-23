@@ -155,14 +155,15 @@ def dispatch(method, path, query, cookies, headers, body):
         prof = db.get_profile(user["id"])
         if not prof:
             return _err(400, "no_profile")
-        topic = (jbody().get("topic") or "").strip()
-        if not topic:
-            return _err(400, "topic_required")
+        b = jbody()
+        topic = (b.get("topic") or "").strip()
+        auto = bool(b.get("auto"))
 
         if path == "/api/generate/script":
-            cost = s.CREDITS_PER_SCRIPT
+            if not topic:
+                return _err(400, "topic_required")
             try:
-                billing.charge(user["id"], cost, "script")
+                billing.charge(user["id"], s.CREDITS_PER_SCRIPT, "script")
             except ValueError:
                 return _err(402, "insufficient_credits")
             out = script_svc.generate(prof, topic)
@@ -170,14 +171,22 @@ def dispatch(method, path, query, cookies, headers, body):
             return _json(200, {"id": gid, "kind": "script", "output": out,
                                "credits": db.get_user(user["id"])["credits"]})
         else:
-            cost = s.CREDITS_PER_IMAGE
+            # Image: either a user description (topic) or auto (prompt written for them).
+            if not topic and not auto:
+                return _err(400, "topic_required")
             try:
-                billing.charge(user["id"], cost, "image")
+                billing.charge(user["id"], s.CREDITS_PER_IMAGE, "image")
             except ValueError:
                 return _err(402, "insufficient_credits")
-            imgs = image_svc.generate_for(prof, topic, n=1)
-            out = {"images": [jsonable(i) for i in imgs]}
-            gid = db.save_generation(user["id"], "image", topic, topic, out)
+            if auto or not topic:
+                prompt = image_svc.auto_prompt(prof)
+                title = "Auto image"
+            else:
+                prompt = topic
+                title = topic
+            imgs = image_svc.generate(prof, prompt, n=1)
+            out = {"images": [jsonable(i) for i in imgs], "prompt_used": prompt}
+            gid = db.save_generation(user["id"], "image", title, prompt, out)
             return _json(200, {"id": gid, "kind": "image", "output": out,
                                "credits": db.get_user(user["id"])["credits"]})
 
